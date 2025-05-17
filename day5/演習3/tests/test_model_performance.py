@@ -4,7 +4,13 @@ import pandas as pd
 import numpy as np
 import pickle
 import json
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    roc_auc_score,
+)
 from sklearn.model_selection import train_test_split
 
 # テスト用データとモデルパスを定義
@@ -72,7 +78,9 @@ def test_model_metrics(load_model, prepare_test_data):
     for metric, value in metrics.items():
         threshold = thresholds[metric]
         print(f"{metric}: {value:.4f} (閾値: {threshold})")
-        assert value >= threshold, f"{metric}が閾値を下回っています: {value:.4f} < {threshold}"
+        assert (
+            value >= threshold
+        ), f"{metric}が閾値を下回っています: {value:.4f} < {threshold}"
 
     # パフォーマンス履歴を保存
     save_performance_history(metrics)
@@ -131,7 +139,9 @@ def test_model_performance_stability():
         max_degradation = 0.05  # 5%の低下まで許容
         degradation = prev_value - value
 
-        print(f"{metric}: 現在値 {value:.4f}, 前回値 {prev_value:.4f}, 変化量 {-degradation:.4f}")
+        print(
+            f"{metric}: 現在値 {value:.4f}, 前回値 {prev_value:.4f}, 変化量 {-degradation:.4f}"
+        )
         assert (
             degradation <= max_degradation
         ), f"{metric}が前回より著しく低下しています: {value:.4f} < {prev_value:.4f} (差: {degradation:.4f})"
@@ -148,10 +158,10 @@ def test_feature_importance(load_model, sample_data):
     # モデルがRandomForestClassifierを含む場合のみ実行
     if hasattr(model, "named_steps") and "classifier" in model.named_steps:
         classifier = model.named_steps["classifier"]
-        
+
         if hasattr(classifier, "feature_importances_"):
             feature_importances = classifier.feature_importances_
-            
+
             # 重要度とインデックスでソート
             if len(feature_importances) > 0:
                 # 特徴量名のリストを作成（前処理パイプラインの変換を考慮せず、元の特徴量名を使用）
@@ -162,18 +172,22 @@ def test_feature_importance(load_model, sample_data):
                         print(f"特徴量 {i}: {importance:.4f}")
                     else:
                         print(f"特徴量 {i}: {importance:.4f}")
-                
+
                 # 重要度の合計が0より大きいことを確認
                 assert sum(feature_importances) > 0, "特徴量の重要度の合計が0以下です"
-                
+
                 # 少なくとも1つの特徴量は一定の重要度を持つことを確認
-                assert max(feature_importances) >= 0.01, f"最も重要な特徴量の重要度が低すぎます: {max(feature_importances):.4f}"
+                assert (
+                    max(feature_importances) >= 0.01
+                ), f"最も重要な特徴量の重要度が低すぎます: {max(feature_importances):.4f}"
             else:
                 pytest.skip("特徴量重要度の情報がありません")
         else:
             pytest.skip("モデルが特徴量重要度をサポートしていません")
     else:
-        pytest.skip("モデルがRandomForestClassifierではないか、パイプラインの構造が想定と異なります")
+        pytest.skip(
+            "モデルがRandomForestClassifierではないか、パイプラインの構造が想定と異なります"
+        )
 
 
 def test_prediction_distribution(load_model, prepare_test_data):
