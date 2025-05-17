@@ -135,7 +135,7 @@ def test_model_performance_stability():
     # 性能が著しく低下していないか確認（5%以上の低下を許容しない）
     for metric, value in latest.items():
         prev_value = previous[metric]
-        max_degradation = 0.05  # 5%の低下まで許容
+        max_degradation = 0.05
         degradation = prev_value - value
 
         print(
